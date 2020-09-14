@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+# 2020 Stefan Weil, UB Mannheim
+
+# Parse log files from OCR-D process and calculate execution times
+# from lines like this one:
+
+# 12:16:33.211 INFO ocrd.task_sequence.run_tasks - Finished processing task 'fileformat-transform [...]
+
+import argparse
+import re
+import time
+
+parser = argparse.ArgumentParser(
+    description=("Get execution time for each OCR-D processor from log file")
+)
+
+parser.add_argument(
+    "file",
+    help="log file",
+    type=argparse.FileType('r'),
+    nargs=1)
+
+args = parser.parse_args()
+
+processor = ''
+timestamp = ''
+t_total = 0
+
+print("%-24s %s" % ('processor', 't m:s'))
+
+while True:
+  line = args.file[0].readline()
+  if not line:
+    break
+  line = line.strip()
+  m = re.search('^(..:..:..).* ([FSa-z]+) processing task .([a-z-]*)', line)
+  if not m:
+    continue
+
+  action = m.group(2)
+  if action == 'Start':
+    t0 = time.strptime(m.group(1), '%H:%M:%S')
+    processor = m.group(3)
+  elif action == 'Finished':
+    if processor != m.group(3):
+      abort()
+    t1 = time.strptime(m.group(1), '%H:%M:%S')
+    dt = t1.tm_hour - t0.tm_hour
+    dt = dt * 60 + t1.tm_min - t0.tm_min
+    dt = dt * 60 + t1.tm_sec - t0.tm_sec
+    if dt < 0:
+      dt += 24 * 60 * 60
+    t_total += dt
+    print("%-24s %3u:%02u" % (processor, dt / 60, dt % 60))
+
+print("%-24s %3u:%02u" % ('total', t_total / 60, (t_total % 60)))
