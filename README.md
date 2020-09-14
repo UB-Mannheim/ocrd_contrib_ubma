@@ -1,6 +1,7 @@
 # ocrd_contrib_ubma
 
-This is a collection of helper scripts which are used at UB Mannheim in the context of OCR-D.
+This is a collection of helper scripts which are used at UB Mannheim
+in the context of [OCR-D](https://ocr-d.de/).
 
 ## ocrd-times
 
