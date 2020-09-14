@@ -13,3 +13,9 @@ This is a collection of helper scripts which are used at UB Mannheim in the cont
 
     optional arguments:
       -h, --help  show this help message and exit
+
+## ocrd-ubma
+
+This is an example how OCR-D can process a given URN.
+IT still misses the steps needed to add ALTO results
+to the initial METS file.

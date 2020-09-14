@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -x
+set -e
+
+export LANG=C.UTF-8
+
+URN=urn:nbn:de:bsz:180-digad-35210
+METS=https://digi.bib.uni-mannheim.de/mets/$URN
+
+date --iso-8601=seconds
+
+time -p ocrd workspace --directory $URN clone $METS
+
+cd $URN
+
+time -p ocrd process \
+  "olena-binarize -I MAX -O OCR-D-BIN -P impl sauvola" \
+  "anybaseocr-crop -I OCR-D-BIN -O OCR-D-CROP" \
+  "olena-binarize -I OCR-D-CROP -O OCR-D-BIN2 -P impl kim" \
+  "cis-ocropy-denoise -I OCR-D-BIN2 -O OCR-D-BIN-DENOISE -P level-of-operation page" \
+  "tesserocr-deskew -I OCR-D-BIN-DENOISE -O OCR-D-BIN-DENOISE-DESKEW -P operation_level page" \
+  "tesserocr-segment-region -I OCR-D-BIN-DENOISE-DESKEW -O OCR-D-SEG-REG" \
+  "segment-repair -I OCR-D-SEG-REG -O OCR-D-SEG-REPAIR -P plausibilize true" \
+  "cis-ocropy-deskew -I OCR-D-SEG-REPAIR -O OCR-D-SEG-REG-DESKEW -P level-of-operation region" \
+  "cis-ocropy-clip -I OCR-D-SEG-REG-DESKEW -O OCR-D-SEG-REG-DESKEW-CLIP -P level-of-operation region" \
+  "tesserocr-segment-line -I OCR-D-SEG-REG-DESKEW-CLIP -O OCR-D-SEG-LINE" \
+  "tesserocr-recognize -I OCR-D-SEG-LINE -O OCR-D-OCR-TESS -P model fast/Fraktur_50000000.334_450937" \
+  "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-ALTO -P from-to \"page alto\"" \
+  "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-TEXT -P from-to \"page text\""
+
+date --iso-8601=seconds
