@@ -27,6 +27,6 @@ time -p ocrd process \
   "tesserocr-segment-line -I OCR-D-SEG-REG-DESKEW-CLIP -O OCR-D-SEG-LINE" \
   "tesserocr-recognize -I OCR-D-SEG-LINE -O OCR-D-OCR-TESS -P model fast/Fraktur_50000000.334_450937" \
   "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-ALTO -P from-to \"page alto\"" \
-  "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-TEXT -P from-to \"page text\""
+  "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-TEXT -P from-to \"page text\" -P ext .txt"
 
 date --iso-8601=seconds

@@ -26,5 +26,6 @@ for i in MAX/*.jpg; do base=`basename ${i} .jpg`; ocrd workspace add -G MAX -i M
   "tesserocr-segment-line -I OCR-D-SEG-REG-DESKEW-CLIP -O OCR-D-SEG-LINE" \
   "tesserocr-recognize -I OCR-D-SEG-LINE -O OCR-D-OCR-TESS -P model GT4HistOCR" \
   "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-ALTO -P from-to \"page alto\"" \
-  "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-TEXT -P from-to \"page text\""
+  "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-TEXT -P from-to \"page text\" -P ext .txt"
 ) > ocrd.log 2>&1
+
