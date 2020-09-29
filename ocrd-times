@@ -40,8 +40,8 @@ while True:
 
   action = m.group(2)
   if action == 'Start':
-    t0 = time.strptime(m.group(1), '%H:%M:%S')
     processor = m.group(3)
+    t0 = time.strptime(m.group(1), '%H:%M:%S')
   elif action == 'Finished':
     if processor != m.group(3):
       abort()
@@ -53,5 +53,16 @@ while True:
       dt += 24 * 60 * 60
     t_total += dt
     print("%-24s %3u:%02u" % (processor, dt / 60, dt % 60))
+    processor = ''
+
+if processor != '':
+    t1 = time.localtime()
+    dt = t1.tm_hour - t0.tm_hour
+    dt = dt * 60 + t1.tm_min - t0.tm_min
+    dt = dt * 60 + t1.tm_sec - t0.tm_sec
+    if dt < 0:
+      dt += 24 * 60 * 60
+    t_total += dt
+    print("%-24s %3u:%02u (still running)" % (processor, dt / 60, dt % 60))
 
 print("%-24s %3u:%02u" % ('total', t_total / 60, (t_total % 60)))

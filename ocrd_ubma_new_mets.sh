@@ -5,16 +5,15 @@ set -e
 
 export LANG=C.UTF-8
 
-URN=urn:nbn:de:bsz:180-digad-35210
-METS=https://digi.bib.uni-mannheim.de/mets/$URN
-
 date --iso-8601=seconds
 
-time -p ocrd workspace --directory $URN clone $METS
+source /usr/local/ocrd_all/venv/bin/activate
 
-cd $URN
+ocrd workspace init .
 
-time -p ocrd process \
+for i in MAX/*.jpg; do base=`basename ${i} .jpg`; ocrd workspace add -G MAX -i MAX_${base} -g P_${base} -m image/jpeg ${i}; done
+
+(time -p ocrd process \
   "olena-binarize -I MAX -O OCR-D-BIN -P impl sauvola" \
   "anybaseocr-crop -I OCR-D-BIN -O OCR-D-CROP" \
   "olena-binarize -I OCR-D-CROP -O OCR-D-BIN2 -P impl kim" \
@@ -25,8 +24,8 @@ time -p ocrd process \
   "cis-ocropy-deskew -I OCR-D-SEG-REPAIR -O OCR-D-SEG-REG-DESKEW -P level-of-operation region" \
   "cis-ocropy-clip -I OCR-D-SEG-REG-DESKEW -O OCR-D-SEG-REG-DESKEW-CLIP -P level-of-operation region" \
   "tesserocr-segment-line -I OCR-D-SEG-REG-DESKEW-CLIP -O OCR-D-SEG-LINE" \
-  "tesserocr-recognize -I OCR-D-SEG-LINE -O OCR-D-OCR-TESS -P model fast/Fraktur_50000000.334_450937" \
+  "tesserocr-recognize -I OCR-D-SEG-LINE -O OCR-D-OCR-TESS -P model GT4HistOCR" \
   "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-ALTO -P from-to \"page alto\"" \
   "fileformat-transform -I OCR-D-OCR-TESS -O OCR-D-OCR-TEXT -P from-to \"page text\" -P ext .txt"
+) > ocrd.log 2>&1
 
-date --iso-8601=seconds
